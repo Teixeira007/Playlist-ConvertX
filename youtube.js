@@ -116,7 +116,7 @@ async function robot(){
             });
 
             const nameSongs = response.data.items.map( x => x.snippet.title)
-            // console.log('Response:', nameSongs);
+            console.log('Response:', response.data.items);
 
             return nameSongs;
 
