@@ -8,10 +8,10 @@ const { request } = require('http')
 
 
 async function robot(){
-    await authenticateWithOAuth()
+    // await authenticateWithOAuth()
     
 
-    // INICIO DA AUTENTICAÇÃO OAUTH2
+    // INICIO DA AUTENTICAÇÃO OAUTH2 YOUTUBE
 
     async function authenticateWithOAuth(){
         const webServer = await startWebServer()
@@ -104,7 +104,10 @@ async function robot(){
         }
     }
 
-    //FIM DA AUTENTICAÇÃO OAUTH2
+    //FIM DA AUTENTICAÇÃO OAUTH2 YOUTUBE
+
+
+    
 
     // Pegar todas as músicas da playlist do youtube e colocar em uma lista
     async function getPlaylistSongsToList(idPlaylistYoutube){
@@ -116,7 +119,7 @@ async function robot(){
             });
 
             const nameSongs = response.data.items.map( x => x.snippet.title)
-            console.log('Response:', response.data.items);
+            console.log('Response:', nameSongs);
 
             return nameSongs;
 
@@ -124,8 +127,48 @@ async function robot(){
             console.error('Error:', error);
         }         
     }
+
+    // INICIO DA AUTENTICAÇÃO SPOTIFY
+
+    const path = require('path');
+    const fetch = require('node-fetch');
+    require('dotenv').config({ path: path.join(__dirname, 'credenciais', 'secret.env') });
+
+    const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
+
+    //pegar o token do spotify com minhas credenciais
+    const _getToken = async () => {
+        const credentials = `${spotifyClientId}:${spotifyClientSecret}`;
+        const encodedCredentials = Buffer.from(credentials).toString('base64');
+
+        const result = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + encodedCredentials
+            },
+            body: 'grant_type=client_credentials'
+        });
+
+        const data = await result.json();
+        return data.access_token;
+    }
+    //FIM DA AUTENTICAÇÃO SPOTIFY
+
+
+
     
-    getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
+
+
+
+
+    
+
+
+    getTracks("Mudou a Estação")
+    
+    // getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
 }
 
 module.exports = robot
