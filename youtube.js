@@ -8,7 +8,7 @@ const { request } = require('http')
 
 
 async function robot(){
-    // await authenticateWithOAuth()
+    await authenticateWithOAuth()
     
 
     // INICIO DA AUTENTICAÇÃO OAUTH2 YOUTUBE
@@ -119,7 +119,7 @@ async function robot(){
             });
 
             const nameSongs = response.data.items.map( x => x.snippet.title)
-            console.log('Response:', nameSongs);
+            // console.log('Response:', nameSongs);
 
             return nameSongs;
 
@@ -169,6 +169,27 @@ async function robot(){
         
         return data.tracks.items[0].id;
     }
+
+    // pega todas as musicas da playlist do youtube e trasnforma em ids das mesmas musicas
+    // no spotify
+    async function getIdTracks(idPlaylistYoutube){
+        let tracksList = await getPlaylistSongsToList(idPlaylistYoutube)
+
+        try {
+            const results = [];
+            for (const name of tracksList) {
+              const data = await getTracks(name);
+              results.push(data);
+            }
+            
+            // O array 'results' conterá os resultados das chamadas assíncronas para getTracks
+            return results;
+          } catch (error) {
+            console.error('Ocorreu um erro:', error);
+          }
+    }
+
+    
     
 
 
@@ -179,8 +200,8 @@ async function robot(){
 
     
 
-
-    getTracks("Mudou a Estação")
+    const idTracks = await getIdTracks("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
+    // getTracks("Mudou a Estação")
     
     // getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
 }
