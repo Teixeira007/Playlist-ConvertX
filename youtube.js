@@ -155,7 +155,21 @@ async function robot(){
         return data.access_token;
     }
     //FIM DA AUTENTICAÇÃO SPOTIFY
+    
 
+    //buscar uma múscia no spotify e pegar o id, pelo nome da música
+    async function getTracks(nameTracks) {
+        const token = await _getToken();
+        const result = await fetch(`https://api.spotify.com/v1/search?query=${nameTracks}&type=track`, {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const data = await result.json();
+        
+        return data.tracks.items[0].id;
+    }
+    
 
 
     
