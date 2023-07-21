@@ -1,3 +1,4 @@
+const { log } = require('console')
 const express = require('express')
 const google = require('googleapis').google
 const youtube = google.youtube({ version: 'v3' })
@@ -7,10 +8,8 @@ const { request } = require('http')
 // const state = require('./state.js')
 const SpotifyWebApi = require('spotify-web-api-node');
 
-
 async function robot(){
-    await authenticateWithOAuth()
-    await authenticateWithOAuthSpotify();
+    // await authenticateWithOAuth()
     
 
     // INICIO DA AUTENTICAÇÃO OAUTH2 YOUTUBE
@@ -157,35 +156,41 @@ async function robot(){
         return data.access_token;
     }
 
-    // INICIO DA AUTENTICAÇÃO SPOTIFY OAUTH2
+    // Configure as credenciais do cliente
     const redirectUri = 'http://localhost:5000/oauth2callback';
 
-    async function authenticateWithOAuthSpotify() {
-        const webServer = await startWebServer();
-        const spotifyApi = createSpotifyClient();
-        requestUserConsent(spotifyApi);
-        const authorizationCode = await waitForSpotifyCallback(webServer);
-        await requestSpotifyAccessTokens(spotifyApi, authorizationCode);
+    
+
+    async function autenticarComOAuthSpotify() {
+        const webServer = await iniciarServidorWeb();
+        const spotifyApi = criarClienteSpotify();
+        solicitarConsentimentoDoUsuario(spotifyApi);
+        const codigoAutorizacao = await aguardarCallbackDoSpotify(webServer);
+        const accessToken = await solicitarTokensDeAcessoDoSpotify(spotifyApi, codigoAutorizacao);
         await setGlobalSpotifyAuthentication(spotifyApi);
-        await stopWebServer(webServer);
+        await pararServidorWeb(webServer);
+
+        const idUser = await getUserSpotify(accessToken)
+        createPlaylistSpotify(idUser.id, "Teste1", "testedescri",true, accessToken)
+
     }
 
-    async function startWebServer() {
+    async function iniciarServidorWeb() {
         return new Promise((resolve, reject) => {
-            const port = 5000;
+            const porta = 5000;
             const app = express();
 
-            const server = app.listen(port, () => {
-                console.log(`> Listening on http://localhost:${port}`);
+            const servidor = app.listen(porta, () => {
+                console.log(`> Ouvindo em http://localhost:${porta}`);
                 resolve({
                     app,
-                    server
+                    servidor
                 });
             });
         });
     }
 
-    function createSpotifyClient() {
+    function criarClienteSpotify() {
         const spotifyApi = new SpotifyWebApi({
             clientId: process.env.SPOTIFY_CLIENT_ID,
             clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
@@ -195,50 +200,52 @@ async function robot(){
         return spotifyApi;
     }
 
-    function requestUserConsent(spotifyApi) {
-        const consentUrl = spotifyApi.createAuthorizeURL(['user-read-playback-state', 'user-read-currently-playing'], 'state');
-        console.log(`> Please give your consent: ${consentUrl}`);
+    function solicitarConsentimentoDoUsuario(spotifyApi) {
+        const consentUrl = spotifyApi.createAuthorizeURL(['user-read-playback-state', 'user-read-currently-playing', 'playlist-modify-public'], 'state');
+        console.log(`> Por favor, dê seu consentimento: ${consentUrl}`);
     }
 
-    async function waitForSpotifyCallback(webServer) {
+    async function aguardarCallbackDoSpotify(webServer) {
         return new Promise((resolve, reject) => {
-            console.log(`> Waiting for user consent...`);
+            console.log(`> Aguardando consentimento do usuário...`);
 
             webServer.app.get('/oauth2callback', (req, res) => {
-                const authorizationCode = req.query.code;
-                console.log(`> Consent given: ${authorizationCode}`);
+                const codigoAutorizacao = req.query.code;
+                console.log(`> Consentimento dado: ${codigoAutorizacao}`);
 
-                res.send('<h1>Thank you!</h1><p>Now close this tab.</p>');
-                resolve(authorizationCode);
+                res.send('<h1>Obrigado!</h1><p>Agora feche esta aba.</p>');
+                resolve(codigoAutorizacao);
             });
         });
     }
 
-    async function requestSpotifyAccessTokens(spotifyApi, authorizationCode) {
-        const authenticationData = await spotifyApi.authorizationCodeGrant(authorizationCode);
-        console.log('> Access tokens received:');
-        console.log(authenticationData.body);
+    async function solicitarTokensDeAcessoDoSpotify(spotifyApi, codigoAutorizacao) {
+        const dadosAutenticacao = await spotifyApi.authorizationCodeGrant(codigoAutorizacao);
+        console.log('> Tokens de acesso recebidos:');
+        // console.log(dadosAutenticacao.body);
 
-        // Save the access and refresh tokens if needed
-        const accessToken = authenticationData.body.access_token;
-        const refreshToken = authenticationData.body.refresh_token;
+        // Salve os tokens de acesso e atualização, se necessário
+        const accessToken = dadosAutenticacao.body.access_token;
+        const refreshToken = dadosAutenticacao.body.refresh_token;
+        return accessToken;
     }
 
     function setGlobalSpotifyAuthentication(spotifyApi) {
-        // You can now use spotifyApi to make requests to the Spotify API on behalf of the user.
-        // For example, you can use spotifyApi.getMe() to get user information.
+        // Agora, você pode usar spotifyApi para fazer solicitações à API do Spotify em nome do usuário.
+        // Por exemplo, você pode usar spotifyApi.getMe() para obter informações do usuário.
     }
 
-    async function stopWebServer(webServer) {
+    async function pararServidorWeb(webServer) {
         return new Promise((resolve, reject) => {
-            webServer.server.close(() => {
+            webServer.servidor.close(() => {
                 resolve();
             });
         });
     }
 
-    // Call the authentication function to start the process
-   
+    // Chame a função de autenticação para iniciar o processo
+    autenticarComOAuthSpotify();
+
 
     //FIM DA AUTENTICAÇÃO SPOTIFY OAUTH2
     
@@ -273,6 +280,44 @@ async function robot(){
           } catch (error) {
             console.error('Ocorreu um erro:', error);
           }
+    }
+
+    // Pegar dados da conta do spotify do usuário
+    async function getUserSpotify(token){
+        const result = await fetch(`https://api.spotify.com/v1/me`, {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const data = await result.json();
+        return data
+    }
+
+    //criar uma playlist no spotify
+    async function createPlaylistSpotify(user_id, namePlaylist, description, status, token){
+
+        const requestBody = {
+            name: namePlaylist,
+            description: description,
+            public: status
+        };
+
+        try {
+            const result = await fetch(`https://api.spotify.com/v1/users/${user_id}/playlists`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': 'Bearer ' + token, 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+    
+            const data = await result.json();
+            return data.id
+            
+        } catch (error) {
+            console.error('Error creating playlist:', error);
+        }
     }
 
     
