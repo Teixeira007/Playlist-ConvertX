@@ -9,7 +9,7 @@ const { request } = require('http')
 const SpotifyWebApi = require('spotify-web-api-node');
 
 async function robot(){
-    // await authenticateWithOAuth()
+    await authenticateWithOAuth()
     
 
     // INICIO DA AUTENTICAÇÃO OAUTH2 YOUTUBE
@@ -170,9 +170,9 @@ async function robot(){
         await setGlobalSpotifyAuthentication(spotifyApi);
         await pararServidorWeb(webServer);
 
-        const idUser = await getUserSpotify(accessToken)
-        createPlaylistSpotify(idUser.id, "Teste1", "testedescri",true, accessToken)
-
+        
+        // createPlaylistSpotify(idUser.id, "Teste1", "testedescri",true, accessToken)
+        return accessToken
     }
 
     async function iniciarServidorWeb() {
@@ -244,7 +244,7 @@ async function robot(){
     }
 
     // Chame a função de autenticação para iniciar o processo
-    autenticarComOAuthSpotify();
+    // autenticarComOAuthSpotify();
 
 
     //FIM DA AUTENTICAÇÃO SPOTIFY OAUTH2
@@ -314,16 +314,56 @@ async function robot(){
     
             const data = await result.json();
             return data.id
-            
+
+        } catch (error) {
+            console.error('Error creating playlist:', error);
+        }
+    }
+
+
+    //adicionar itens a playlist do spotify
+    async function addPlaylistSpotify(idTracks){
+
+        const idTracksStrings = idTracks.map(x => `spotify:track:${x}`)
+        // console.log(idTracksStrings);
+
+        const access_token = await autenticarComOAuthSpotify();
+        
+
+        const user = await getUserSpotify(access_token)
+        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste2", "testedescr", true, access_token);
+        console.log(idPlaylistSpotify);
+        console.log(idTracksStrings);
+
+        const requestBody = {
+            uris: idTracksStrings,
+            position: 0
+        };
+
+        try {
+            const result = await fetch(`https://api.spotify.com/v1/playlists/${idPlaylistSpotify}/tracks`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': 'Bearer ' + access_token, 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+    
+            const data = await result.json();
+            console.log(data);
+            // return data.id
+
         } catch (error) {
             console.error('Error creating playlist:', error);
         }
     }
 
     
-    // const idTracks = await getIdTracks("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
+    const idTracks = await getIdTracks("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
+    // console.log(idTracks);
     // getTracks("Mudou a Estação")
-    
+    addPlaylistSpotify(idTracks)
     // getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
 }
 
