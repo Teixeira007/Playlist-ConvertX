@@ -120,15 +120,31 @@ async function robot(){
             });
 
             const nameSongs = response.data.items.map( x => x.snippet.title)
-            // console.log('Response:', nameSongs);
+            const authorSongs = response.data.items.map(x => x.snippet.videoOwnerChannelTitle)
+            // console.log('Response:', authorSongs);
 
-            return nameSongs;
+            const listSongs = [];
+            response.data.items.forEach(song => {
+                const titleSong = song.snippet.title;
+                const authorSong = song.snippet.videoOwnerChannelTitle;
+
+                const songObject = new createObjectSong(titleSong, authorSong);
+                listSongs.push(songObject)
+            })
+
+            // console.log(songObject);
+
+            return listSongs;
 
         } catch (error) {
             console.error('Error:', error);
         }         
     }
 
+    function createObjectSong(titleSong, authorSong){
+       this.titleSong = titleSong;
+       this.authorSong = authorSong;
+    }
     // INICIO DA AUTENTICAÇÃO SPOTIFY
 
     const path = require('path');
@@ -250,19 +266,35 @@ async function robot(){
     //FIM DA AUTENTICAÇÃO SPOTIFY OAUTH2
     
 
-    //buscar uma múscia no spotify e pegar o id, pelo nome da música
-    async function getTracks(nameTracks) {
+    //buscar uma múscia no spotify e pegar o id, pelo nome da música e pelo author
+    async function getTracks(nameTracks, authorTracks) {
+        
         const token = await _getToken();
-        const result = await fetch(`https://api.spotify.com/v1/search?query=${nameTracks}&type=track`, {
+        
+        const result = await fetch(`https://api.spotify.com/v1/search?query=${nameTracks}artist:${authorTracks}&type=track&limit=5`, {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + token }
         });
 
         const data = await result.json();
-        
+        // console.log(data.tracks.items);
+
+        let title = data.tracks.items[0].name
+        let author = data.tracks.items[0].artists[0].name
+        // console.log(title);
+        // console.log(author);
+
+        const regexTitle = new RegExp(title, "i"); // "i" significa ignorar maiúsculas e minúsculas
+        const regexAuthor = new RegExp(author, "i");
+
+
+        if(regexTitle.test(nameTracks) && regexAuthor.test(authorTracks)){
+            console.log(title);
+            // return data.tracks.items[0].id;
+        }
         return data.tracks.items[0].id;
     }
-
+    // getTracks("Por um Minuto", "Bruno e Marrone")
     // pega todas as musicas da playlist do youtube e trasnforma em ids das mesmas musicas
     // no spotify
     async function getIdTracks(idPlaylistYoutube){
@@ -270,8 +302,8 @@ async function robot(){
 
         try {
             const results = [];
-            for (const name of tracksList) {
-              const data = await getTracks(name);
+            for (const song of tracksList) {
+              const data = await getTracks(song.titleSong, song.authorSong);
               results.push(data);
             }
             
@@ -331,9 +363,9 @@ async function robot(){
         
 
         const user = await getUserSpotify(access_token)
-        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste2", "testedescr", true, access_token);
-        console.log(idPlaylistSpotify);
-        console.log(idTracksStrings);
+        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste7", "testedescr", true, access_token);
+        // console.log(idPlaylistSpotify);
+        // console.log(idTracksStrings);
 
         const requestBody = {
             uris: idTracksStrings,
@@ -351,7 +383,7 @@ async function robot(){
             });
     
             const data = await result.json();
-            console.log(data);
+            // console.log(data);
             // return data.id
 
         } catch (error) {
