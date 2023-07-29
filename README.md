@@ -2,12 +2,8 @@
 Playlist ConvertX: A Ponte Entre YouTube e Spotify" é uma ferramenta que permite aos usuários converterem facilmente suas playlists do YouTube em playlists do Spotify, e vice-versa. Com uma interface amigável e intuitiva, essa solução simplifica o processo de migração de músicas entre as duas plataformas.
 
 
-## Status
-Problemas com a busca no spotify
-
-## Desenvolvimento
-### Introdução
-Durante o desenvolvimento da ferramenta Playlist ConvertX, o principal objetivo foi proporcionar uma maneira simples e prática para os usuários migrarem suas playlists entre o YouTube e o Spotify. No entanto, a conversão perfeita entre as duas plataformas apresentou alguns desafios, especialmente devido a diferenças na forma como as músicas são identificadas em cada serviço.
+### Status de Desenvolvimento
+Atualmente, o desenvolvimento da Playlist ConvertX está focado na etapa de converter playlists do YouTube para o Spotify. No entanto, a equipe de desenvolvimento encontrou algumas dificuldades em alcançar 100% de precisão na conversão. Alguns problemas de correspondência entre as músicas têm sido identificados, especialmente quando os nomes das músicas são iguais ou quando os artistas têm variações nos registros entre as plataformas.
 
 ### Testes Realizados
 Para garantir a eficácia da conversão, foram realizados diversos testes, utilizando diferentes abordagens de busca e critérios de correspondência. Abaixo estão os detalhes dos testes realizados e os resultados obtidos:
