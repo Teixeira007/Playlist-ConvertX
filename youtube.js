@@ -6,6 +6,7 @@ const OAuth2 = google.auth.OAuth2
 const fs = require('fs')
 const { request } = require('http')
 const natural = require('natural');
+const stringSimilarity = require('string-similarity');
 // const state = require('./state.js')
 const SpotifyWebApi = require('spotify-web-api-node');
 
@@ -280,29 +281,45 @@ async function robot(){
         const data = await result.json();
         // console.log(data.tracks.items);
 
-        
-
-
         console.log("Musicas: ",nameTracks, " ", authorTracks);
-        const threshold = 0.4; // Ajuste este valor conforme necessário para controlar a sensibilidade da correspondência
-
+        const threshold = 0.7; // Ajuste este valor conforme necessário para controlar a sensibilidade da correspondência
+        const thresholdUnder = 0.8;
         let foundTrackId = null;
         for (let i = 0; i < data.tracks.items.length; i++) {
             let title = data.tracks.items[i].name;
             let author = data.tracks.items[i].artists[0].name;
-
-            if (natural.LevenshteinDistance(title.toLowerCase(), nameTracks.toLowerCase()) / Math.max(title.length, nameTracks.length) <= threshold &&
-                natural.LevenshteinDistance(author.toLowerCase(), authorTracks.toLowerCase()) / Math.max(author.length, authorTracks.length) <= threshold) {
+            const similarityScoreTitle = cosineSimilarity(title, nameTracks);
+            const similarityScoreAuthor = cosineSimilarity(author, authorTracks);
+            if(similarityScoreTitle > 0.4 && similarityScoreAuthor > 0.7){
                 foundTrackId = data.tracks.items[i].id;
-                console.log("Achei");
-                console.log(foundTrackId);
-                break; // Encontrou a música correta, então sai do loop
             }
+            // if (natural.LevenshteinDistance(title.toLowerCase(), nameTracks.toLowerCase()) / Math.max(title.length, nameTracks.length) <= thresholdUnder &&
+            //     natural.LevenshteinDistance(author.toLowerCase(), authorTracks.toLowerCase()) / Math.max(author.length, authorTracks.length) <= threshold) {
+            //     foundTrackId = data.tracks.items[i].id;
+            //     console.log("Achei");
+            //     console.log(foundTrackId);
+            //     break; // Encontrou a música correta, então sai do loop
+            // }
         }
+
+        // if(foundTrackId == null){
+        //     for (let i = 0; i < data.tracks.items.length; i++) {
+        //         let title = data.tracks.items[i].name;
+        //         if (natural.LevenshteinDistance(title.toLowerCase(), nameTracks.toLowerCase()) / Math.max(title.length, nameTracks.length) <= thresholdUnder) {
+        //             foundTrackId = data.tracks.items[i].id;
+        //             break; // Encontrou a música correta, então sai do loop
+        //         }
+        //     }
+        // }
         
             
-        return foundTrackId ? [foundTrackId] : [];
+        return foundTrackId ? [foundTrackId] : null;
         // return data.tracks.items[0].id;
+    }
+
+    function cosineSimilarity(str1, str2) {
+        const similarity = stringSimilarity.compareTwoStrings(str1, str2);
+        return similarity;
     }
     // getTracks("Por um Minuto (Por un Minuto) - Ao Vivo", "Bruno & Marrone")
     // pega todas as musicas da playlist do youtube e trasnforma em ids das mesmas musicas
@@ -365,9 +382,16 @@ async function robot(){
 
     //adicionar itens a playlist do spotify
     async function addPlaylistSpotify(idTracks){
+        console.log(idTracks);
+        const idTracksStrings = idTracks.map(x => {
+            if(x != null){
+                return `spotify:track:${x}`
+            }
+            return null;
+        }).filter(x => x !== null)
 
-        const idTracksStrings = idTracks.map(x => `spotify:track:${x}`)
         console.log(idTracksStrings);
+        console.log(idTracksStrings.length);
 
         const access_token = await autenticarComOAuthSpotify();
         
