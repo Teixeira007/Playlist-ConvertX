@@ -36,3 +36,6 @@ Para garantir a eficácia da conversão, foram realizados diversos testes, utili
 
 - Descrição: Foi utilizada a função LevenshteinDistance para calcular a distância entre as strings do nome da música no YouTube e no - Spotify, com uma sensibilidade de 0.4 (40% de similaridade).
 - Resultado: De 50 músicas, 36 foram corretamente convertidas.
+
+- Descrição: Foi retirada a função LevenshteinDistance, e foi adicionado a codificação de caracteres especiais na url, utilizando encodeURIComponent
+- Resultado: De 50 músicas, 47 foram corretamente convertidas.
