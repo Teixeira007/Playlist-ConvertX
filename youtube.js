@@ -24,7 +24,7 @@ async function robot(){
         await requestGoogleForAccessTokens(OAuthClient, authorizationToken)
         await setGlobalGoogleAuthentication(OAuthClient)
         await stopWebServer(webServer)
-
+    }
         async function startWebServer(){
             return new Promise((resolve, reject) => {
                 const port = 5000
@@ -105,7 +105,7 @@ async function robot(){
                 })
             })
         }
-    }
+    // }teste
 
     //FIM DA AUTENTICAÇÃO OAUTH2 YOUTUBE
 
@@ -134,7 +134,6 @@ async function robot(){
                 listSongs.push(songObject)
             })
 
-            // console.log(songObject);
 
             return listSongs;
 
@@ -269,11 +268,16 @@ async function robot(){
     
 
     //buscar uma múscia no spotify e pegar o id, pelo nome da música e pelo author
+    // getTracks("Bruno & Marrone - Por um Minuto (Por um Minuto) (Ao Vivo)", "BrunoEMarroneVEVO")
     async function getTracks(nameTracks, authorTracks) {
-        
+        // console.log("teste2");
         const token = await _getToken();
+
+        const nameTracksEncode = encodeURIComponent(nameTracks);
+        const authorTracksEncode = encodeURIComponent(authorTracks);
+
         
-        const result = await fetch(`https://api.spotify.com/v1/search?query=${nameTracks}artist:${authorTracks}&type=track&limit=20`, {
+        const result = await fetch(`https://api.spotify.com/v1/search?query=${nameTracksEncode} artist=${authorTracksEncode}&locale=pt-BR%2Cpt%3Bq%3D0.9%2Cen-US%3Bq%3D0.8%2Cen%3Bq%3D0.7&type=track&limit=20&offset=0`, {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -282,51 +286,40 @@ async function robot(){
         // console.log(data.tracks.items);
 
         console.log("Musicas: ",nameTracks, " ", authorTracks);
-        const threshold = 0.7; // Ajuste este valor conforme necessário para controlar a sensibilidade da correspondência
-        const thresholdUnder = 0.8;
-        let foundTrackId = null;
-        for (let i = 0; i < data.tracks.items.length; i++) {
-            let title = data.tracks.items[i].name;
-            let author = data.tracks.items[i].artists[0].name;
-            const similarityScoreTitle = cosineSimilarity(title, nameTracks);
-            const similarityScoreAuthor = cosineSimilarity(author, authorTracks);
-            if(similarityScoreTitle > 0.4 && similarityScoreAuthor > 0.7){
-                foundTrackId = data.tracks.items[i].id;
-            }
-            // if (natural.LevenshteinDistance(title.toLowerCase(), nameTracks.toLowerCase()) / Math.max(title.length, nameTracks.length) <= thresholdUnder &&
-            //     natural.LevenshteinDistance(author.toLowerCase(), authorTracks.toLowerCase()) / Math.max(author.length, authorTracks.length) <= threshold) {
-            //     foundTrackId = data.tracks.items[i].id;
-            //     console.log("Achei");
-            //     console.log(foundTrackId);
-            //     break; // Encontrou a música correta, então sai do loop
-            // }
-        }
+        // console.log(data);
+        // const threshold = 0.7; // Ajuste este valor conforme necessário para controlar a sensibilidade da correspondência
+        // const thresholdUnder = 0.8;
+        // let foundTrackId = null;
+
+        // // for (let i = 0; i < data.tracks.items.length; i++) {
+        //     let title = data.tracks.items[i].name;
+        //     let author = data.tracks.items[i].artists[0].name;
+        //     const similarityScoreTitle = cosineSimilarity(title, nameTracks);
+        //     const similarityScoreAuthor = cosineSimilarity(author, authorTracks);
+        //     if(similarityScoreTitle > 0.4 && similarityScoreAuthor > 0.7){
+        //         foundTrackId = data.tracks.items[i].id;
+        //     }
+        // }
 
         // if(foundTrackId == null){
-        //     for (let i = 0; i < data.tracks.items.length; i++) {
-        //         let title = data.tracks.items[i].name;
-        //         if (natural.LevenshteinDistance(title.toLowerCase(), nameTracks.toLowerCase()) / Math.max(title.length, nameTracks.length) <= thresholdUnder) {
-        //             foundTrackId = data.tracks.items[i].id;
-        //             break; // Encontrou a música correta, então sai do loop
-        //         }
-        //     }
+        //     foundTrackId = data.tracks.items[0].id;
         // }
         
             
-        return foundTrackId ? [foundTrackId] : null;
-        // return data.tracks.items[0].id;
+        // return foundTrackId;
+        return data.tracks.items[0].id;
     }
 
     function cosineSimilarity(str1, str2) {
         const similarity = stringSimilarity.compareTwoStrings(str1, str2);
         return similarity;
     }
-    // getTracks("Por um Minuto (Por un Minuto) - Ao Vivo", "Bruno & Marrone")
+    
     // pega todas as musicas da playlist do youtube e trasnforma em ids das mesmas musicas
     // no spotify
     async function getIdTracks(idPlaylistYoutube){
         let tracksList = await getPlaylistSongsToList(idPlaylistYoutube)
-
+        console.log(tracksList)
         try {
             const results = [];
             for (const song of tracksList) {
@@ -397,7 +390,7 @@ async function robot(){
         
 
         const user = await getUserSpotify(access_token)
-        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste8", "testedescr", true, access_token);
+        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste11", "testedescr", true, access_token);
         // console.log(idPlaylistSpotify);
         // console.log(idTracksStrings);
 
@@ -425,7 +418,7 @@ async function robot(){
         }
     }
 
-    
+    console.log("teste1")
     const idTracks = await getIdTracks("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
     // console.log(idTracks);
     // getTracks("Mudou a Estação")
