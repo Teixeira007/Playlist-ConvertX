@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLAYLIST CONVERTX</title>
+    <link rel="stylesheet" href="../css/global.css">
+</head>
+<body>
+    <header>
+        <h1>Playlist ConvertX</h1>
+        <nav>
+            <ul>
+                <li><a href="#">SOBRE</a></li>
+                <li><a href="#">AJUDA</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="fields_convert" id="fieldsConvert">
+            <div class="field_button" id="youtubeField">
+                <img class="icon" src="../img/icons8-youtube-100.png">
+                <button class="field">YOUTUBE</button>
+            </div>
+            <img src="../img/icons8-converter-50.png" alt="" class="converter_icon" id="converterIcon">
+            <div class="field_button" id="spotifyField">
+                <img class="icon" src="../img/icons8-spotify-96-removebg-preview.png">
+                <button class="field">SPOTIFY</button>
+            </div>
+        </div>
+        <div class="input_id_playlist">
+            <input type="text" id="id_playlist" placeholder="Id da Playlist">
+        </div>
+        <div class="loading_icon" id="loadingIcon">
+            <img src="../img/icons8-círculo-de-carga.gif" alt="Loading Icon">
+        </div>
+        <button class="button_converter" onclick="converterPlaylist()" id="converter">Converter</button>
+    </main>
+
+    
+    <script src="../js/script.js"></script>
+    <script src="../../servidor.js"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,900&family=Teko:wght@500&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    font-family: 'Roboto', sans-serif;
+}
+
+header{
+    display: flex;
+    padding: 1rem;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 3px 1px 1px #DCDCDC;
+    margin-bottom: 1rem;
+    color: #1E90FF;
+}
+
+header h1{
+    font-weight: 400;
+    font-size: 2rem;
+    font-family: 'Teko', 'Arial', sans-serif;
+}
+
+header nav ul{
+    display: flex;
+    gap: 2rem;
+}
+header nav ul li a{
+    color:#1E90FF ;
+}
+
+.fields_convert{
+    width: 30rem;
+    margin: auto;
+    gap: 4rem;
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.field_button{
+    display: flex;
+    gap: 0.4rem;
+    border: 1px solid #DCDCDC;
+    border-radius: 1.4rem;
+    padding: 0.1rem;
+    background-color: #1E90FF;
+    box-shadow: 1px 1px 3px #1E90FF;
+
+}
+
+.field_button img{
+    width: 3rem;
+}
+
+.field{
+    padding: 0.8rem;
+    width: 18.75rem;
+    text-align: start;
+    border-radius: 1.4rem;
+    border: 1px solid #1E90FF;
+    color: #1E90FF;
+
+}
+
+.converter_icon{
+    cursor: pointer;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+}
+
+.input_id_playlist input{
+    padding: 1rem;
+    width: 30rem;
+    border-radius: 1rem;
+    border: 1px solid #c3c3c3;
+    outline: none;
+}
+
+.button_converter{
+    padding: 0.5rem;
+    width: 15rem;
+    border-radius: 1rem;
+    border: none;
+    background-color: #1E90FF;
+    color: #fff;
+    font-size: 1.6rem;
+    font-family: 'Teko', 'Arial', sans-serif;
+    cursor: pointer;
+}
+
+.button_converter:hover{
+    opacity: 0.9;
+}
+
+/* Adicione o seguinte estilo para esconder o ícone de carregamento por padrão */
+.loading_icon {
+    display: none;
+}
+
+/* Adicione o seguinte estilo para a animação de rotação */
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estilo da classe 'loading' que será adicionada ao ícone de conversão durante o carregamento */
+.loading .loading_icon {
+    display: inline-block;
+    animation: rotate 1s infinite linear;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
