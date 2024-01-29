@@ -37,30 +37,27 @@ app.post('/runRobot/:idPlaylist', async (req, res) => {
 });
 
 app.get('/auth', async (req, res) => {
-    // Rota para iniciar o processo de autenticação OAuth2
     try {
         robot.authenticateWithOAuth(res)
-        // const OAuthClient = await auth2Youtube.createOAuthCliente();
-        // await auth2Youtube.requestUserConsent(OAuthClient, res);
     } catch (error) {
         console.error('Error initiating OAuth2 authentication:', error);
         res.status(500).json({ success: false, message: 'Error initiating OAuth2 authentication' });
     }
 });
 
-app.get('/oauth2callback', async (req, res) => {
-    try {
-        const startWebServer = await auth2Youtube.startWebServer();
-        const OAuthClient = await auth2Youtube.createOAuthCliente();
-        const authorizationToken = req.query.code;
+// app.get('/oauth2callback', async (req, res) => {
+//     try {
+//         const startWebServer = await auth2Youtube.startWebServer();
+//         const OAuthClient = await auth2Youtube.createOAuthCliente();
+//         const authorizationToken = req.query.code;
         
-        console.log(`> Consent given: ${authorizationToken}`);
-        await auth2Youtube.requestGoogleForAccessTokens(OAuthClient, authorizationToken);
-    } catch (error) {
-        console.error('Error handling OAuth2 callback:', error);
-        res.status(500).json({ success: false, message: 'Error handling OAuth2 callback' });
-    }
-});
+//         console.log(`> Consent given: ${authorizationToken}`);
+//         await auth2Youtube.requestGoogleForAccessTokens(OAuthClient, authorizationToken);
+//     } catch (error) {
+//         console.error('Error handling OAuth2 callback:', error);
+//         res.status(500).json({ success: false, message: 'Error handling OAuth2 callback' });
+//     }
+// });
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
