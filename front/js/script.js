@@ -24,45 +24,41 @@ document.getElementById('converterIcon').addEventListener('click', function() {
     }
 });
 
-async function converterPlaylist(){
+document.addEventListener('DOMContentLoaded', () => {
+    const converterButton = document.getElementById('converter');
+    converterButton.addEventListener('click', converterPlaylist);
+});
+
+async function converterPlaylist() {
+    const idPlaylist = document.getElementById('id_playlist').value;
     const loadingIcon = document.getElementById('loadingIcon');
-    const youtubeField = document.getElementById('youtubeField');
-    const spotifyField = document.getElementById('spotifyField');
-    const inputIdPlaylist = document.getElementById('id_playlist').value;
-
     // Mostra o ícone de carregamento
-    loadingIcon.style.display = 'inline-block';
+    // loadingIcon.style.display = 'inline-block';
 
-    // Desativa os botões para evitar cliques múltiplos durante o carregamento
-    youtubeField.querySelector('button').disabled = true;
-    spotifyField.querySelector('button').disabled = true;
-    window.location.href = '/auth';
+    try {
+        // 1. Autenticar com YouTube
+        await makeRequest('/authenticate/youtube');
 
-    // try {
-    //     // Faz a requisição AJAX para iniciar a conversão
-    //     const response = await fetch(`/runRobot/${inputIdPlaylist}`, { 
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json', // Indica que o conteúdo é JSON
-    //         },
-    //     });
-    //     const data = await response.json();
+        // 2. Autenticar com Spotify
+        await makeRequest('/authenticate/spotify');
 
-    //     // Exibe mensagem de sucesso ou erro (substitua isso pelo seu feedback real)
-    //     if (data.success) {
-    //         alert('Conversão iniciada com sucesso!');
-    //     } else {
-    //         alert('Erro ao iniciar a conversão.');
-    //     }
-    // } catch (error) {
-    //     console.error('Erro durante a conversão:', error);
-    // } finally {
-    //     // Esconde o ícone de carregamento
-    //     loadingIcon.style.display = 'none';
+        // 3. Executar o robô do YouTube com o ID da playlist
+        await makeRequest(`/run/youtube?playlistId=${idPlaylist}`);
 
-    //     // Reativa os botões após o término da conversão
-    //     youtubeField.querySelector('button').disabled = false;
-    //     spotifyField.querySelector('button').disabled = false;
-    // }
-        
+        alert('Playlist convertida com sucesso!');
+    } catch (error) {
+        console.error('Erro ao converter a playlist:', error);
+        alert('Erro ao converter a playlist. Verifique o console para mais detalhes.');
+    }
+}
+
+async function makeRequest(endpoint) {
+    try {
+        const response = await fetch(endpoint, { method: 'GET' });
+        const data = await response.json();
+        console.log(data); // Você pode lidar com os dados da resposta conforme necessário
+    } catch (error) {
+        console.error('Erro ao fazer a solicitação:', error);
+        throw error;
+    }
 }

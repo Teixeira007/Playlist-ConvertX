@@ -1,12 +1,13 @@
 const express = require('express');
-const robot = require('./youtube');
+const authYoutube = require('./authYoutube');
+const authSpotify = require('./authSpotify');
+const youtube = require('./youtube.js');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const auth2Youtube = require('./auth2Youtube')
 
-const port = 3000;
 let path = require('path');
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.engine('html', require('ejs').renderFile);
 
@@ -23,42 +24,62 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '/front/views/index.html'));
   });
 
-app.post('/runRobot/:idPlaylist', async (req, res) => {
-    const idPlaylist = req.params.idPlaylist;
-   
+// Define routes
+app.get('/authenticate/youtube', async (req, res) => {
     try {
-        await robot.authenticateWithOAuth();
-        // await robot(idPlaylist);
-        res.json({ success: true, message: 'Robot executed successfully' });
+        await authenticateWithYoutube();
+        res.status(200).json({ message: 'YouTube authentication successful' });
     } catch (error) {
-        console.error('Error running robot:', error);
-        res.status(500).json({ success: false, message: 'Error running robot' });
+        console.error('Error authenticating with YouTube:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-app.get('/auth', async (req, res) => {
+app.get('/authenticate/spotify', async (req, res) => {
     try {
-        robot.authenticateWithOAuth(res)
+        await authenticateWithSpotify();
+        res.status(200).json({ message: 'Spotify authentication successful' });
     } catch (error) {
-        console.error('Error initiating OAuth2 authentication:', error);
-        res.status(500).json({ success: false, message: 'Error initiating OAuth2 authentication' });
+        console.error('Error authenticating with Spotify:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-// app.get('/oauth2callback', async (req, res) => {
-//     try {
-//         const startWebServer = await auth2Youtube.startWebServer();
-//         const OAuthClient = await auth2Youtube.createOAuthCliente();
-//         const authorizationToken = req.query.code;
-        
-//         console.log(`> Consent given: ${authorizationToken}`);
-//         await auth2Youtube.requestGoogleForAccessTokens(OAuthClient, authorizationToken);
-//     } catch (error) {
-//         console.error('Error handling OAuth2 callback:', error);
-//         res.status(500).json({ success: false, message: 'Error handling OAuth2 callback' });
-//     }
-// });
+// Rota para execução do robô do YouTube
+app.get('/run/youtube', async (req, res) => {
+    const idPlaylist = req.query.playlistId;
 
+    try {
+        // Coloque aqui a lógica para executar o robô do YouTube com o idPlaylist
+        await youtube(idPlaylist)
+        res.json({ success: true, message: 'Robô do YouTube executado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao executar o robô do YouTube:', error);
+        res.status(500).json({ success: false, message: 'Erro ao executar o robô do YouTube.' });
+    }
+});
+
+// Start the server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
+
+async function authenticateWithYoutube() {
+    const webServer = await authYoutube.startWebServer();
+    const OAuthClient = await authYoutube.createOAuthClient();
+    authYoutube.requestUserConsent(OAuthClient);
+    const authorizationToken = await authYoutube.waitForGoogleCallback(webServer);
+    await authYoutube.requestGoogleForAccessTokens(OAuthClient, authorizationToken);
+    authYoutube.setGlobalGoogleAuthentication(OAuthClient);
+    await authYoutube.stopWebServer(webServer);
+}
+
+async function authenticateWithSpotify() {
+    const webServer = await authSpotify.iniciarServidorWeb();
+    const spotifyApi = authSpotify.createSpotifyClient();
+    authSpotify.requestUserConsent(spotifyApi);
+    const authorizationCode = await authSpotify.waitForSpotifyCallback(webServer);
+    const accessToken = await authSpotify.requestSpotifyForAccessTokens(spotifyApi, authorizationCode);
+    authSpotify.setGlobalSpotifyAuthentication(spotifyApi);
+    await authSpotify.stopWebServer(webServer);
+}

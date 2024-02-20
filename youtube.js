@@ -9,19 +9,11 @@ const natural = require('natural');
 const stringSimilarity = require('string-similarity');
 // const state = require('./state.js')
 const SpotifyWebApi = require('spotify-web-api-node');
-const authModuloYoutube = require('./auth2Youtube')
+const authSpotify = require('./authSpotify');
 
-async function authenticateWithOAuth(res){
-    const webServer = await authModuloYoutube.startWebServer()
-    const OAuthClient = await authModuloYoutube.createOAuthCliente()
-    const requestUser = authModuloYoutube.requestUserConsent(OAuthClient, res)
-    const authorizationToken = await authModuloYoutube.waitForGoogleCallback(webServer)
-    await authModuloYoutube.requestGoogleForAccessTokens(OAuthClient, authorizationToken)
-    await authModuloYoutube.setGlobalGoogleAuthentication(OAuthClient)
-    await authModuloYoutube.stopWebServer(webServer)
-}
 
-async function robot(inputIdPlaylist){
+async function robot(idPlaylist){
+    
     // Pegar todas as músicas da playlist do youtube e colocar em uma lista
     async function getPlaylistSongsToList(idPlaylistYoutube){
         try{
@@ -56,132 +48,11 @@ async function robot(inputIdPlaylist){
        this.titleSong = titleSong;
        this.authorSong = authorSong;
     }
-    // INICIO DA AUTENTICAÇÃO SPOTIFY
-
-    const path = require('path');
-    const fetch = require('node-fetch');
-    require('dotenv').config({ path: path.join(__dirname, 'credenciais', 'secret.env') });
-
-    const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-    const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
-
-    //pegar o token do spotify com minhas credenciais
-    const _getToken = async () => {
-        const credentials = `${spotifyClientId}:${spotifyClientSecret}`;
-        const encodedCredentials = Buffer.from(credentials).toString('base64');
-
-        const result = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + encodedCredentials
-            },
-            body: 'grant_type=client_credentials'
-        });
-
-        const data = await result.json();
-        return data.access_token;
-    }
-
-    // Configure as credenciais do cliente
-    const redirectUri = 'http://localhost:5000/oauth2callback';
-
-    
-
-    async function autenticarComOAuthSpotify() {
-        const webServer = await iniciarServidorWeb();
-        const spotifyApi = criarClienteSpotify();
-        solicitarConsentimentoDoUsuario(spotifyApi);
-        const codigoAutorizacao = await aguardarCallbackDoSpotify(webServer);
-        const accessToken = await solicitarTokensDeAcessoDoSpotify(spotifyApi, codigoAutorizacao);
-        await setGlobalSpotifyAuthentication(spotifyApi);
-        await pararServidorWeb(webServer);
-
-        
-        // createPlaylistSpotify(idUser.id, "Teste1", "testedescri",true, accessToken)
-        return accessToken
-    }
-
-    async function iniciarServidorWeb() {
-        return new Promise((resolve, reject) => {
-            const porta = 5000;
-            const app = express();
-
-            const servidor = app.listen(porta, () => {
-                console.log(`> Ouvindo em http://localhost:${porta}`);
-                resolve({
-                    app,
-                    servidor
-                });
-            });
-        });
-    }
-
-    function criarClienteSpotify() {
-        const spotifyApi = new SpotifyWebApi({
-            clientId: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-            redirectUri: redirectUri
-        });
-
-        return spotifyApi;
-    }
-
-    function solicitarConsentimentoDoUsuario(spotifyApi) {
-        const consentUrl = spotifyApi.createAuthorizeURL(['user-read-playback-state', 'user-read-currently-playing', 'playlist-modify-public'], 'state');
-        console.log(`> Por favor, dê seu consentimento: ${consentUrl}`);
-    }
-
-    async function aguardarCallbackDoSpotify(webServer) {
-        return new Promise((resolve, reject) => {
-            console.log(`> Aguardando consentimento do usuário...`);
-
-            webServer.app.get('/oauth2callback', (req, res) => {
-                const codigoAutorizacao = req.query.code;
-                console.log(`> Consentimento dado: ${codigoAutorizacao}`);
-
-                res.send('<h1>Obrigado!</h1><p>Agora feche esta aba.</p>');
-                resolve(codigoAutorizacao);
-            });
-        });
-    }
-
-    async function solicitarTokensDeAcessoDoSpotify(spotifyApi, codigoAutorizacao) {
-        const dadosAutenticacao = await spotifyApi.authorizationCodeGrant(codigoAutorizacao);
-        console.log('> Tokens de acesso recebidos:');
-        // console.log(dadosAutenticacao.body);
-
-        // Salve os tokens de acesso e atualização, se necessário
-        const accessToken = dadosAutenticacao.body.access_token;
-        const refreshToken = dadosAutenticacao.body.refresh_token;
-        return accessToken;
-    }
-
-    function setGlobalSpotifyAuthentication(spotifyApi) {
-        // Agora, você pode usar spotifyApi para fazer solicitações à API do Spotify em nome do usuário.
-        // Por exemplo, você pode usar spotifyApi.getMe() para obter informações do usuário.
-    }
-
-    async function pararServidorWeb(webServer) {
-        return new Promise((resolve, reject) => {
-            webServer.servidor.close(() => {
-                resolve();
-            });
-        });
-    }
-
-    // Chame a função de autenticação para iniciar o processo
-    // autenticarComOAuthSpotify();
-
-
-    //FIM DA AUTENTICAÇÃO SPOTIFY OAUTH2
-    
 
     //buscar uma múscia no spotify e pegar o id, pelo nome da música e pelo author
     // getTracks("Bruno & Marrone - Por um Minuto (Por um Minuto) (Ao Vivo)", "BrunoEMarroneVEVO")
     async function getTracks(nameTracks, authorTracks) {
-        // console.log("teste2");
-        const token = await _getToken();
+        const token = await authSpotify._getToken();
 
         const nameTracksEncode = encodeURIComponent(nameTracks);
         const authorTracksEncode = encodeURIComponent(authorTracks);
@@ -193,43 +64,16 @@ async function robot(inputIdPlaylist){
         });
 
         const data = await result.json();
-        // console.log(data.tracks.items);
 
-        console.log("Musicas: ",nameTracks, " ", authorTracks);
-        // console.log(data);
-        // const threshold = 0.7; // Ajuste este valor conforme necessário para controlar a sensibilidade da correspondência
-        // const thresholdUnder = 0.8;
-        // let foundTrackId = null;
-
-        // // for (let i = 0; i < data.tracks.items.length; i++) {
-        //     let title = data.tracks.items[i].name;
-        //     let author = data.tracks.items[i].artists[0].name;
-        //     const similarityScoreTitle = cosineSimilarity(title, nameTracks);
-        //     const similarityScoreAuthor = cosineSimilarity(author, authorTracks);
-        //     if(similarityScoreTitle > 0.4 && similarityScoreAuthor > 0.7){
-        //         foundTrackId = data.tracks.items[i].id;
-        //     }
-        // }
-
-        // if(foundTrackId == null){
-        //     foundTrackId = data.tracks.items[0].id;
-        // }
-        
-            
-        // return foundTrackId;
+    
         return data.tracks.items[0].id;
     }
 
-    function cosineSimilarity(str1, str2) {
-        const similarity = stringSimilarity.compareTwoStrings(str1, str2);
-        return similarity;
-    }
-    
+
     // pega todas as musicas da playlist do youtube e trasnforma em ids das mesmas musicas
     // no spotify
     async function getIdTracks(idPlaylistYoutube){
         let tracksList = await getPlaylistSongsToList(idPlaylistYoutube)
-        // console.log(tracksList)
         try {
             const results = [];
             for (const song of tracksList) {
@@ -285,7 +129,6 @@ async function robot(inputIdPlaylist){
 
     //adicionar itens a playlist do spotify
     async function addPlaylistSpotify(idTracks){
-        console.log(idTracks);
         const idTracksStrings = idTracks.map(x => {
             if(x != null){
                 return `spotify:track:${x}`
@@ -293,14 +136,12 @@ async function robot(inputIdPlaylist){
             return null;
         }).filter(x => x !== null)
 
-        console.log(idTracksStrings);
-        console.log(idTracksStrings.length);
 
-        const access_token = await autenticarComOAuthSpotify();
+        const access_token = await authSpotify.getSpotifyAccessToken();
         
 
         const user = await getUserSpotify(access_token)
-        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste12", "testedescr", true, access_token);
+        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste14", "testedescr", true, access_token);
         // console.log(idPlaylistSpotify);
         // console.log(idTracksStrings);
 
@@ -328,16 +169,11 @@ async function robot(inputIdPlaylist){
         }
     }
 
-    // console.log("teste1")
-    console.log(inputIdPlaylist);
-    const idTracks = await getIdTracks(inputIdPlaylist)
+    const idTracks = await getIdTracks(idPlaylist)
     // console.log(idTracks);
     // getTracks("Mudou a Estação")
     addPlaylistSpotify(idTracks)
     // getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
 }
 
-module.exports = {
-    authenticateWithOAuth,
-    robot
-}
+module.exports = robot

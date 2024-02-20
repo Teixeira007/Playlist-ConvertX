@@ -1,8 +1,6 @@
-const google = require('googleapis').google
-const youtube = google.youtube({ version: 'v3' })
-const OAuth2 = google.auth.OAuth2
-const express = require('express')
-
+const express = require('express');
+const google = require('googleapis').google;
+const OAuth2 = google.auth.OAuth2;
 
 async function startWebServer(){
     return new Promise((resolve, reject) => {
@@ -20,7 +18,7 @@ async function startWebServer(){
     })
 }
 
-async function createOAuthCliente(){
+async function createOAuthClient(){
     const credentials = require('./credenciais/client_secret_209134491777-vq09gbtqepsfm052e3upqhqvm1on7g6h.apps.googleusercontent.com.json')
 
     const OAuthClient = new OAuth2(
@@ -32,18 +30,16 @@ async function createOAuthCliente(){
     return OAuthClient
 }
 
-function requestUserConsent(OAuthClient, res){
+function requestUserConsent(OAuthClient){
     const consentUrl = OAuthClient.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/youtube']
     })
 
     console.log(`> Please give your consent: ${consentUrl}`)
-    res.redirect(consentUrl);
 }
 
 async function waitForGoogleCallback(webServer){
-    console.log("teste");
     return new Promise((resolve, reject) => {
         console.log(`> Waiting for use consent...`)
 
@@ -51,7 +47,10 @@ async function waitForGoogleCallback(webServer){
             const authCode = req.query.code 
             console.log(`> Consent given: ${authCode}`)
 
-            res.send('<h1>Thank you!</h1><p>Now close this tab.</p>')
+            const closeScript = '<script>window.close();</script>';
+
+            // Envie a resposta com o script
+            res.send(`<h1>Thank you!</h1><p>Now close this tab.</p>${closeScript}`);
             resolve(authCode)
         })
     })
@@ -89,7 +88,7 @@ async function stopWebServer(webServer){
 
 module.exports = {
     startWebServer,
-    createOAuthCliente,
+    createOAuthClient,
     requestUserConsent,
     waitForGoogleCallback,
     requestGoogleForAccessTokens,
