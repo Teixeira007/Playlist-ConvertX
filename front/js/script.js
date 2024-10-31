@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function converterPlaylist() {
     const idPlaylist = document.getElementById('id_playlist').value;
+    const namePlaylist = document.getElementById('name_playlist').value;
+
     const loadingIcon = document.getElementById('loadingIcon');
     // Mostra o ícone de carregamento
     // loadingIcon.style.display = 'inline-block';
@@ -43,9 +45,8 @@ async function converterPlaylist() {
         await makeRequest('/authenticate/spotify');
 
         // 3. Executar o robô do YouTube com o ID da playlist
-        await makeRequest(`/run/youtube?playlistId=${idPlaylist}`);
+        await makeRequest(`/run/youtube?playlistId=${idPlaylist}&namePlaylist=${namePlaylist}`);
 
-        alert('Playlist convertida com sucesso!');
     } catch (error) {
         console.error('Erro ao converter a playlist:', error);
         alert('Erro ao converter a playlist. Verifique o console para mais detalhes.');

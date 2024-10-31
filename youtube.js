@@ -12,7 +12,7 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const authSpotify = require('./authSpotify');
 
 
-async function robot(idPlaylist){
+async function robot(idPlaylist, namePlaylist){
     
     // Pegar todas as músicas da playlist do youtube e colocar em uma lista
     async function getPlaylistSongsToList(idPlaylistYoutube){
@@ -36,7 +36,7 @@ async function robot(idPlaylist){
                 listSongs.push(songObject)
             })
 
-
+            
             return listSongs;
 
         } catch (error) {
@@ -128,7 +128,7 @@ async function robot(idPlaylist){
 
 
     //adicionar itens a playlist do spotify
-    async function addPlaylistSpotify(idTracks){
+    async function addPlaylistSpotify(idTracks, namePlaylist){
         const idTracksStrings = idTracks.map(x => {
             if(x != null){
                 return `spotify:track:${x}`
@@ -141,7 +141,7 @@ async function robot(idPlaylist){
         
 
         const user = await getUserSpotify(access_token)
-        const idPlaylistSpotify = await createPlaylistSpotify(user.id, "Teste14", "testedescr", true, access_token);
+        const idPlaylistSpotify = await createPlaylistSpotify(user.id, namePlaylist, "descrição", true, access_token);
         // console.log(idPlaylistSpotify);
         // console.log(idTracksStrings);
 
@@ -172,7 +172,7 @@ async function robot(idPlaylist){
     const idTracks = await getIdTracks(idPlaylist)
     // console.log(idTracks);
     // getTracks("Mudou a Estação")
-    addPlaylistSpotify(idTracks)
+    addPlaylistSpotify(idTracks, namePlaylist)
     // getPlaylistSongsToList("PLqBi3xrllzWaayMb7JBrB0qOK-0QVpFte")
 }
 

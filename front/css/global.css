@@ -78,9 +78,14 @@ main{
     gap: 3rem;
 }
 
+.input_id_playlist{
+    display: flex;
+    gap: 1rem;
+}
+
 .input_id_playlist input{
     padding: 1rem;
-    width: 30rem;
+    width: 20rem;
     border-radius: 1rem;
     border: 1px solid #c3c3c3;
     outline: none;

@@ -48,15 +48,24 @@ app.get('/authenticate/spotify', async (req, res) => {
 // Rota para execução do robô do YouTube
 app.get('/run/youtube', async (req, res) => {
     const idPlaylist = req.query.playlistId;
+    const namePlaylist =  req.query.namePlaylist
 
     try {
         // Coloque aqui a lógica para executar o robô do YouTube com o idPlaylist
-        await youtube(idPlaylist)
+        await youtube(idPlaylist, namePlaylist)
         res.json({ success: true, message: 'Robô do YouTube executado com sucesso!' });
     } catch (error) {
         console.error('Erro ao executar o robô do YouTube:', error);
         res.status(500).json({ success: false, message: 'Erro ao executar o robô do YouTube.' });
     }
+});
+
+app.get('/redirecionar/:urlParam', (req, res) => {
+    // Obtém o parâmetro da URL
+    const urlRedirecionamento = req.params.urlParam;
+    
+    // Realiza o redirecionamento
+    res.redirect(urlRedirecionamento);
 });
 
 // Start the server
