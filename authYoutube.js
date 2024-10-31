@@ -37,6 +37,7 @@ function requestUserConsent(OAuthClient){
     })
 
     console.log(`> Please give your consent: ${consentUrl}`)
+    return consentUrl
 }
 
 async function waitForGoogleCallback(webServer){
@@ -45,7 +46,7 @@ async function waitForGoogleCallback(webServer){
 
         webServer.app.get('/oauth2callback', (req, res) => {
             const authCode = req.query.code 
-            console.log(`> Consent given: ${authCode}`)
+            console.log(`> Consent given`)
 
             const closeScript = '<script>window.close();</script>';
 
