@@ -55,6 +55,7 @@ function createSpotifyClient() {
 function requestUserConsent(spotifyApi) {
     const consentUrl = spotifyApi.createAuthorizeURL(['user-read-playback-state', 'user-read-currently-playing', 'playlist-modify-public'], 'state');
     console.log(`> Por favor, dê seu consentimento: ${consentUrl}`);
+    return consentUrl;
 }
 
 async function waitForSpotifyCallback(webServer) {
