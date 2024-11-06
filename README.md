@@ -1,9 +1,43 @@
 # Playlist-ConvertX
-Playlist ConvertX: A Ponte Entre YouTube e Spotify" é uma ferramenta que permite aos usuários converterem facilmente suas playlists do YouTube em playlists do Spotify, e vice-versa. Com uma interface amigável e intuitiva, essa solução simplifica o processo de migração de músicas entre as duas plataformas.
+
+![Playlist-ConvertX](https://github.com/Teixeira007/Playlist-ConvertX/blob/main/front/img/convert_fav-removebg-preview-1-removebg-preview.png) <!-- Insira o logotipo ou uma imagem de apresentação do projeto aqui -->
+
+## Descrição
+
+**Playlist-ConvertX** é uma ferramenta para converter playlists entre os serviços de streaming Spotify e YouTube. Com esta aplicação, você pode migrar suas músicas favoritas entre plataformas de forma prática e rápida.
+
+## Funcionalidades
+
+- **Conversão entre Spotify e YouTube**: Transfira playlists inteiras de uma plataforma para outra em poucos passos.
+- **Interface intuitiva**: Interface simples e de fácil utilização.
+- **Automação com APIs**: Integra-se com as APIs do Spotify e do YouTube para facilitar o processo de conversão.
+
+## Capturas de Tela
+
+<!-- Inclua aqui imagens das principais telas da aplicação e exemplos de playlists convertidas. Exemplo: -->
+![Tela Principal](https://github.com/Teixeira007/Playlist-ConvertX/blob/main/readme/gif_tela.gif)
+*Exemplo da tela principal do Playlist-ConvertX.*
+
+## Tecnologias Utilizadas
+
+- **HTML, CSS, JavaScript** para o front-end.
+- **Node.js** para o servidor back-end.
+- **APIs do YouTube e Spotify** para integração com os serviços de streaming.
+
+## Requisitos
+
+- Node.js v14.0 ou superior
+- Conta de desenvolvedor no Spotify e YouTube para obter as chaves da API.
+
+## Como Clonar e Executar o Projeto
+
+1. **Clone o Repositório**:
+   ```bash
+   git clone https://github.com/Teixeira007/Playlist-ConvertX.git
 
 
-### Status de Desenvolvimento
-Atualmente, o desenvolvimento da Playlist ConvertX está focado na etapa de converter playlists do YouTube para o Spotify. No entanto, a equipe de desenvolvimento encontrou algumas dificuldades em alcançar 100% de precisão na conversão. Alguns problemas de correspondência entre as músicas têm sido identificados, especialmente quando os nomes das músicas são iguais ou quando os artistas têm variações nos registros entre as plataformas.
+### Desafios no desenvolvimento
+O desenvolvimento da Playlist ConvertX encontrou algumas dificuldades em alcançar 100% de precisão na conversão. Alguns problemas de correspondência entre as músicas foram um grande problema, especialmente quando os nomes das músicas são iguais ou quando os artistas têm variações nos registros entre as plataformas. Esse erro ocorreu principalmente na conversão de Youtube para Spotify, devido a algumas musicas que tem no youtube não serem publicadas no spotify
 
 ### Testes Realizados
 Para garantir a eficácia da conversão, foram realizados diversos testes, utilizando diferentes abordagens de busca e critérios de correspondência. Abaixo estão os detalhes dos testes realizados e os resultados obtidos:
