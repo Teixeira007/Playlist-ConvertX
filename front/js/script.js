@@ -117,7 +117,23 @@ async function converterPlaylist(playlistId, newPlaylistName, isSpotifyToYoutube
                 }, 10); // intervalo de 10ms para completar em 1 segundo (1000ms / 10ms = 100 incrementos de 2%)
             }
         }else{
-            alert("Não tá pronto")
+            const  response = await makeRequest(`/run/spotify?playlistId=${playlistId}&namePlaylist=${newPlaylistName}`);
+            if(response.success){
+                let width = 0;
+                const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    statusMessage.textContent = 'Conversion completed! Your new playlist is ready.';
+                    setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progress.style.width = '0%';
+                    }, 2000);
+                } else {
+                    width += 2;
+                    progress.style.width = width + '%';
+                }
+                }, 10); // intervalo de 10ms para completar em 1 segundo (1000ms / 10ms = 100 incrementos de 2%)
+            }
         }
     }catch (error) {
         alert('Erro ao converter a playlist 00. Verifique o console para mais detalhes.');
