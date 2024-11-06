@@ -21,7 +21,7 @@ app.set('views', path.join(__dirname, 'front/views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/front/views/index.html'));
+    res.sendFile(path.join(__dirname, '/front/views/index01.html'));
   });
 
 let isAuthenticatedYoutube = false;
