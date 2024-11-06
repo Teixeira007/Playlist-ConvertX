@@ -2,6 +2,7 @@ const express = require('express');
 const authYoutube = require('./authYoutube');
 const authSpotify = require('./authSpotify');
 const youtube = require('./youtube.js');
+const spotify = require('./spotify.js');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 
@@ -83,6 +84,20 @@ app.get('/run/youtube', async (req, res) => {
 
     try {
         await youtube(idPlaylist, namePlaylist)
+        res.json({ success: true, message: 'Playlist convertida com Sucesso!' });
+    } catch (error) {
+        console.error('Erro ao executar o robô do YouTube:', error);
+        res.status(500).json({ success: false, message: 'Erro ao executar o robô do YouTube.' });
+    }
+});
+
+// Rota para execução do robô do Spotify
+app.get('/run/spotify', async (req, res) => {
+    const idPlaylist = req.query.playlistId;
+    const namePlaylist =  req.query.namePlaylist
+
+    try {
+        await spotify(idPlaylist, namePlaylist)
         res.json({ success: true, message: 'Playlist convertida com Sucesso!' });
     } catch (error) {
         console.error('Erro ao executar o robô do YouTube:', error);
