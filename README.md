@@ -18,6 +18,7 @@
 ![Tela Principal](https://github.com/Teixeira007/Playlist-ConvertX/blob/main/readme/gif_tela.gif)
 *Exemplo da tela principal do Playlist-ConvertX.*
 
+[Veja o vídeo no YouTube](https://youtu.be/7PMCn7A4KGg)
 ## Tecnologias Utilizadas
 
 - **HTML, CSS, JavaScript** para o front-end.
